@@ -1,6 +1,7 @@
 import networkx as nx
 import matplotlib.pyplot as plt
 import math
+import time
 
 G = nx.Graph()
 
@@ -29,53 +30,77 @@ targetnode = 'E'
 path = []
 
 def idastar(startnode):
+    start_time = time.time()
     threshold = heuristic(startnode)
+    expanded_nodes = 0
 
     while(1):
-        temp = search(startnode, 0, threshold)
+        temp, expanded_nodes = search(startnode, 0, threshold, expanded_nodes)
         if temp == 'FOUND':
-            return path
+            end_time = time.time()
+            actual_time = end_time - start_time
+            return path, actual_time, expanded_nodes
         
         if(temp == float('inf')):
             return
         
         threshold = temp
+    end_time = time.time()
+    actual_time = end_time - start_time
+    return None, actual_time, expanded_nodes
 
-
-
-def search(node, g, treshold):
+# IDA* Funktionen
+def search(node, g, treshold, expanded_nodes):
+    expanded_nodes += 1
     f = g + heuristic(node)
 
     if f > treshold:
-        return f
+        return f, expanded_nodes
     
     if node == targetnode:
         path.append(node)
-        return 'FOUND'
+        return 'FOUND', expanded_nodes
     
     #infinity
     min = float('inf')
 
     for tempnode, weight in neighbors(node):
         path.append(node)
-        temp = search(tempnode, g + weight, treshold)
+        temp, expanded_nodes = search(tempnode, g + weight, treshold, expanded_nodes)
         if temp == 'FOUND':
-            return 'FOUND'
+            return 'FOUND', expanded_nodes
         path.pop()
         if temp < min:
             min = temp
-    return min
+    return min, expanded_nodes
 
+def neighbors(state):
+    return [(n, G[state][n]['weight']) for n in G.neighbors(state)]
 
 def heuristic(state):
     x1, y1 = G.nodes[state]['pos']
     x2, y2 = G.nodes[targetnode]['pos']
     return math.sqrt((x1 - x2)**2 + (y1 - y2)**2)  # Luftlinie
 
-def neighbors(state):
-    return [(n, G[state][n]['weight']) for n in G.neighbors(state)]
+""" def create_grid(size):
+    G = nx.grid_2d_graph(size, size)
+
+    # alle Kanten Gewicht = 1
+    for (u, v) in G.edges():
+        G[u][v]['weight'] = 1
+
+    return G
+
+def heuristic(state):
+    x1, y1 = state
+    x2, y2 = targetnode
+    return abs(x1 - x2) + abs(y1 - y2)  # Manhattan-Distanz 
+
+G = create_grid(20)
+startnode = (0, 0)
+targetnode = (19, 19)"""
 
 if __name__ == "__main__":
-    path = idastar(startnode)
+    path, actual_time, expanded_nodes = idastar(startnode)
 
-    print("Pfad:", path)
+    print(f"Pfad: {path}\nBenötigte Zeit: {actual_time * 1000:.3f} Millisekunden\nExpandierte Knoten: {expanded_nodes}")
