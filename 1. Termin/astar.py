@@ -2,8 +2,11 @@ import heapq
 import networkx as nx
 import matplotlib.pyplot as plt
 import math
+import time
 
 def astar(start, goal_test, neighbors, heuristic):
+    start_time = time.time()
+
     open_list = []
     heapq.heappush(open_list, (heuristic(start), start))
 
@@ -22,8 +25,10 @@ def astar(start, goal_test, neighbors, heuristic):
         expanded_nodes += 1
 
         if goal_test(current):
-            return reconstruct_path(came_from, current), expanded_nodes
-
+            endtime = time.time()
+            actual_time = endtime - start_time
+            path = reconstruct_path(came_from, current)
+            return path, actual_time, expanded_nodes # time zurückgeben
         closed_set.add(current)
 
         for neighbor, cost in neighbors(current):
@@ -39,7 +44,10 @@ def astar(start, goal_test, neighbors, heuristic):
                 f_cost = new_g + heuristic(neighbor)
                 heapq.heappush(open_list, (f_cost, neighbor))
 
-    return None, expanded_nodes
+    # wenn kein pfad gefunden wurde
+    endtime = time.time()
+    actual_time = endtime - start_time
+    return None, actual_time, expanded_nodes  # time zurückgeben
 
 
 def reconstruct_path(came_from, current):
@@ -98,7 +106,8 @@ def heuristic(state):
 # Test
 
 if __name__ == "__main__":
-    path, nodes = astar(start, goal_test, neighbors, heuristic)
+    path, actual_time, nodes = astar(start, goal_test, neighbors, heuristic)
 
     print("Pfad:", path)
     print("Expandierte Knoten:", nodes)
+    print(f"Benötigte Zeit: {actual_time * 1000:.3f} Millisekunden")
