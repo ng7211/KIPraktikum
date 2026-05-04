@@ -97,10 +97,35 @@ def goal_test(state):
 def neighbors(state):
     return [(n, G[state][n]['weight']) for n in G.neighbors(state)]
 
+# def heuristic(state):
+#     x1, y1 = G.nodes[state]['pos']
+#     x2, y2 = G.nodes[goal]['pos']
+#     return math.sqrt((x1 - x2)**2 + (y1 - y2)**2)  # Luftlinie
+
+
+
+# Beispiel: Grid-Graph
+
+def create_grid(size):
+    G = nx.grid_2d_graph(size, size)
+
+    # alle Kanten Gewicht = 1
+    for (u, v) in G.edges():
+        G[u][v]['weight'] = 1
+
+    return G
+
+# Heuristik für Grid
 def heuristic(state):
-    x1, y1 = G.nodes[state]['pos']
-    x2, y2 = G.nodes[goal]['pos']
-    return math.sqrt((x1 - x2)**2 + (y1 - y2)**2)  # Luftlinie
+    x1, y1 = state
+    x2, y2 = goal
+    return abs(x1 - x2) + abs(y1 - y2)  # Manhattan-Distanz
+
+# Grid erstellen
+
+G = create_grid(100)
+start = (0, 0)
+goal = (99, 99)
 
 
 # Test
@@ -111,3 +136,4 @@ if __name__ == "__main__":
     print("Pfad:", path)
     print("Expandierte Knoten:", nodes)
     print(f"Benötigte Zeit: {actual_time * 1000:.3f} Millisekunden")
+
