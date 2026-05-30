@@ -3,6 +3,7 @@ import networkx as nx
 import matplotlib.pyplot as plt
 import math
 import time
+import random
 
 def astar(start, goal_test, neighbors, heuristic):
     start_time = time.time()
@@ -111,7 +112,7 @@ def create_grid(size):
 
     # alle Kanten Gewicht = 1
     for (u, v) in G.edges():
-        G[u][v]['weight'] = 1
+        G[u][v]['weight'] = random.uniform(1, 100)  # zufällige Kosten zwischen 1 und 10
 
     return G
 
@@ -123,9 +124,9 @@ def heuristic(state):
 
 # Grid erstellen
 
-G = create_grid(100)
+G = create_grid(10)
 start = (0, 0)
-goal = (99, 99)
+goal = (9, 9)
 
 
 # Test
